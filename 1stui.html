@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>careTrace - Healthy Care Assistant</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Background image styles */
+        body {
+            position: relative;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 248, 255, 0.95) 100%);
+        }
+        
+        /* Animated GIF background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://share.google/9FV9tkThIWgPTP8qy/gif.gif'); /* Replace with your GIF URL */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            opacity: 0.3; /* Make GIF lighter */
+            z-index: -1;
+            filter: brightness(1.2) contrast(0.8); /* Further lighten the GIF */
+        }
+        
+        /* Fallback in case GIF doesn't load */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(240, 248, 255, 0.6) 0%, rgba(255, 255, 255, 0.7) 100%);
+            z-index: -2;
+        }
+        
+        /* Make all content boxes semi-transparent */
+        .navbar {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .hero {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        .section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .chat-container,
+        .questionnaire-container,
+        .face-container,
+        .resources-grid,
+        .chat-analysis,
+        .emotion-results,
+        .recommendation-card,
+        .analysis-card,
+        .resource-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        
+        footer {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Make buttons semi-transparent too */
+        .cta-button,
+        .submit-btn,
+        #sendButton,
+        #startCamera,
+        #captureEmotion,
+        #stopCamera,
+        .quick-response {
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        
+        .cta-button {
+            background: rgba(59, 130, 246, 0.85) !important;
+        }
+        
+        .submit-btn,
+        #sendButton,
+        #startCamera,
+        #captureEmotion,
+        #stopCamera {
+            background: rgba(59, 130, 246, 0.8) !important;
+        }
+        
+        .quick-response {
+            background: rgba(241, 245, 249, 0.8) !important;
+        }
+        
+        /* Ensure content is readable */
+        .navbar,
+        .container,
+        .hero,
+        footer,
+        .section {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Text shadows for better readability */
+        h1, h2, h3, h4, h5, h6 {
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        .hero-content h1 {
+            text-shadow: 0 2px 4px rgba(255, 255, 255, 0.9);
+        }
+        
+        .hero-content p {
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Progress bars with transparency */
+        .progress-fill,
+        .stress-fill,
+        .sadness-fill,
+        .neutral-fill,
+        .metric-fill {
+            opacity: 0.9;
+        }
+        
+        /* Loading indicator for background */
+        @keyframes backgroundLoading {
+            0% { opacity: 0.5; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.5; }
+        }
+        
+        body.loading::before {
+            animation: backgroundLoading 2s infinite;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* If GIF doesn't load, show a fallback message */
+        .gif-fallback {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: -1;
+            opacity: 0.3;
+        }
+    </style>
+    <script>
+    
+document.addEventListener('DOMContentLoaded', function () {
+    const bgImage = new Image();
+    const gifUrl = 'https://share.google/9FV9tkThIWgPTP8qy/gif.gif'; // Replace with your GIF URL
+
+    bgImage.src = gifUrl;
+
+    bgImage.onload = function () {
+        console.log('Background GIF loaded successfully');
+
+        document.body.style.backgroundImage = `url('${gifUrl}')`;
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundRepeat = 'no-repeat';
+        document.body.style.backgroundPosition = 'center center';
+        document.body.style.minHeight = '100vh';
+
+        document.body.classList.remove('loading');
+    };
+
+    bgImage.onerror = function () {
+        console.log('Failed to load background GIF, using fallback');
+
+        document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+        document.body.style.minHeight = '100vh';
+
+        document.body.classList.remove('loading');
+    };
+});
+</script>
+
+    </script>
+</head>
+<body class="loading">
+    <!-- Fallback in case GIF doesn't load -->
+    <div class="gif-fallback" id="gifFallback">
+        <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-image fa-3x" style="margin-bottom: 20px;"></i>
+            <p>Background image loading...</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>careTrace</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="active"><i class="fas fa-home"></i> Home</a>
+                <a href="#chat"><i class="fas fa-comment"></i> AI Assistant</a>
+                <a href="#questionnaire"><i class="fas fa-clipboard-list"></i> Questionnaire</a>
+                <a href="#face-analysis"><i class="fas fa-smile"></i> Mood Analysis</a>
+                <a href="#resources"><i class="fas fa-book"></i> Resources</a>
+            </div>
+            <div class="language-selector">
+                <select id="languageSelect">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="hi">हिन्दी</option>
+                    <option value="zh">中文</option>
+                    <option value="ar">العربية</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <a 
+    href="historyChat.html"
+    class="cta-button"
+    style="margin-top: 15px; display: inline-block;"
+>
+    Assistive Chat <i class="fas fa-comments"></i>
+</a>
+
+            <h1>Your AI Healthy Care Companion</h1>
+            <p>24/7 support for stress, anxiety, and depression with personalized guidance</p>
+            <a 
+                href="https://x.convai.com/?xpid=fe06faa2-c641-4634-8a68-5d9cca767af8&type=public"
+                class="cta-button"
+                target="_blank"
+            >
+                Start Talking with Ai Virtual Human Assistant <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+        <div class="hero-image">
+            <div class="ai-avatar">
+                <i class="fas fa-robot"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Chatbot Section -->
+        <section id="chat" class="section">
+            <h2><i class="fas fa-comments"></i> AI Assistant Chat</h2>
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="chat-avatar">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="chat-info">
+                        <h3>CareTrace Assistant</h3>
+                        <p>Online • Professional Healthy Care Support</p>
+                    </div>
+                    <div class="chat-status" id="chatStatus">
+                        <span class="status-dot"></span>
+                        Analyzing...
+                    </div>
+                </div>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai-message">
+                        <div class="message-content">
+                            Hello! I'm careTrace, your AI healthy care assistant. I'm here to listen, support, and guide you through difficult times. How are you feeling today?
+                        </div>
+                        <div class="message-time">Just now</div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <input type="text" id="userInput" placeholder="Type your message here..." 
+                               onkeypress="handleKeyPress(event)">
+                        <button id="sendButton" onclick="sendMessage()">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="quick-responses">
+                        <button class="quick-response" onclick="setQuickResponse('I feel anxious today')">
+                            I feel anxious today
+                        </button>
+                        <button class="quick-response" onclick="setQuickResponse('I\'m feeling depressed')">
+                            I'm feeling depressed
+                        </button>
+                        <button class="quick-response" onclick="setQuickResponse('I need coping strategies')">
+                            I need coping strategies
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-analysis">
+                <h4><i class="fas fa-chart-line"></i> Mood Analysis</h4>
+                <div class="analysis-grid">
+                    <div class="analysis-card">
+                        <div class="analysis-title">Current Mood Level</div>
+                        <div class="analysis-value" id="moodLevel">Neutral</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="moodProgress"></div>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <div class="analysis-title">Stress Indicator</div>
+                        <div class="analysis-value" id="stressLevel">Moderate</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill stress-fill" id="stressProgress"></div>
+                        </div>
+                    </div>
+                    <div class="analysis-card">
+                        <div class="analysis-title">Conversation Topics</div>
+                        <div class="analysis-value" id="topics">Anxiety, Stress</div>
+                        <div class="topics-list" id="topicsList">
+                            <span class="topic-tag">Anxiety</span>
+                            <span class="topic-tag">Stress</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Questionnaire Section -->
+        <section id="questionnaire" class="section">
+            <h2><i class="fas fa-clipboard-check"></i> Healthy Care Assessment</h2>
+            <div class="questionnaire-container">
+                <p class="section-description">
+                    This research-based questionnaire helps identify areas where you might need support. 
+                    Your answers will help tailor our assistance to your specific needs.
+                </p>
+                <a href="questionnaire.html" class="questionnaire-link">
+                    <i class="fas fa-external-link-alt"></i> 
+                    Take Full Assessment
+                </a>
+                
+                <div class="quick-assessment">
+                    <h3>Quick Self-Check</h3>
+                    <div class="question-item">
+                        <p>Over the last 2 weeks, how often have you felt little interest or pleasure in doing things?</p>
+                        <div class="option-group">
+                            <label class="option">
+                                <input type="radio" name="q1" value="0">
+                                <span>Not at all</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="1">
+                                <span>Several days</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="2">
+                                <span>More than half the days</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q1" value="3">
+                                <span>Nearly every day</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="question-item">
+                        <p>How often have you felt nervous, anxious, or on edge?</p>
+                        <div class="option-group">
+                            <label class="option">
+                                <input type="radio" name="q2" value="0">
+                                <span>Not at all</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="1">
+                                <span>Several days</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="2">
+                                <span>More than half the days</span>
+                            </label>
+                            <label class="option">
+                                <input type="radio" name="q2" value="3">
+                                <span>Nearly every day</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        class="submit-btn"
+                        onclick="calculateQuickAssessment(); window.location.href='data.html';"
+                    >
+                        Analyze My Responses
+                    </button>
+                    
+                    <div id="assessmentResult" class="result-card hidden">
+                        <h4>Your Assessment Result</h4>
+                        <div id="resultContent"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Face Recognition Section -->
+        <section id="face-analysis" class="section">
+            <h2><i class="fas fa-user-circle"></i> Facial Expression Analysis</h2>
+            <div class="face-container">
+                <div class="camera-section">
+                    <div class="camera-view">
+                        <video id="video" width="640" height="480" autoplay></video>
+                        <canvas id="canvas" width="640" height="480"></canvas>
+                    </div>
+                    <div class="camera-controls">
+                        <button id="startCamera" onclick="startCamera()">
+                            <i class="fas fa-camera"></i> Start Camera
+                        </button>
+                        <button id="captureEmotion" onclick="captureEmotion()" disabled>
+                            <i class="fas fa-smile"></i> Analyze Emotion
+                        </button>
+                        <button id="stopCamera" onclick="stopCamera()" disabled>
+                            <i class="fas fa-stop"></i> Stop Camera
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="emotion-results">
+                    <h3>Emotion Analysis Results</h3>
+                    <div class="emotion-metrics">
+                        <div class="metric">
+                            <div class="metric-label">Happiness</div>
+                            <div class="metric-value" id="happiness">0%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill" id="happinessBar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Sadness</div>
+                            <div class="metric-value" id="sadness">0%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill sadness-fill" id="sadnessBar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Stress (Estimated)</div>
+                            <div class="metric-value" id="stress">0%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill stress-fill" id="stressBar"></div>
+                            </div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Neutral</div>
+                            <div class="metric-value" id="neutral">0%</div>
+                            <div class="metric-bar">
+                                <div class="metric-fill neutral-fill" id="neutralBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recommendation-card">
+                        <h4><i class="fas fa-lightbulb"></i> Personalized Recommendations</h4>
+                        <div id="faceRecommendations">
+                            <p>Start camera and analyze your facial expression to get personalized recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section id="resources" class="section">
+            <h2><i class="fas fa-hands-helping"></i> Resources & Support</h2>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <div class="resource-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h3>Crisis Helplines</h3>
+                    <ul>
+                        <li>National Suicide Prevention: 988</li>
+                        <li>Crisis Text Line: Text HOME to 741741</li>
+                        <li>Veterans Crisis Line: 800-273-8255</li>
+                    </ul>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Mindfulness Exercises</h3>
+                    <ul>
+                        <li>5-minute breathing exercise</li>
+                        <li>Progressive muscle relaxation</li>
+                        <li>Guided meditation sessions</li>
+                    </ul>
+                </div>
+                <div class="resource-card">
+                    <div class="resource-icon">
+                        <i class="fas fa-book-medical"></i>
+                    </div>
+                    <h3>Self-Help Materials</h3>
+                    <ul>
+                        <li>Cognitive Behavioral Therapy exercises</li>
+                        <li>Mood tracking worksheets</li>
+                        <li>Coping strategy guides</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p><strong>Important Note:</strong> This AI assistant is not a replacement for professional medical advice. 
+            If you're in crisis, please contact emergency services or a healthcare professional immediately.</p>
+            <p class="disclaimer">AI responses are generated and should be used for informational purposes only.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="script.js"></script>
+    <script src="face-detection.js"></script>
+    <script src="chatbot.js"></script>
+</body>
+</html>
